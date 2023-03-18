@@ -186,7 +186,7 @@ int main() {
         int updates = get_updates();
         char updatestr[PATH_MAX];
         sprintf(updatestr, "%%F{yellow}%i%%f|", updates);
-        if (updates != -1 || updates != 1) strcat(prompt, updatestr);
+        if (updates > 0) strcat(prompt, updatestr);
         // ssh hostname
         if (getenv("SSH_TTY") != NULL) {
             char host[HOST_NAME_MAX+13];
