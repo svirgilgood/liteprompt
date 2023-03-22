@@ -25,7 +25,6 @@
 void store_branch(git_reference *head, char *fmt_branch) {
     const char *branch = NULL;
     branch = git_reference_shorthand(head);
-    int branch_length = strlen(branch);
     if(branch) {
         strcat(fmt_branch, branch);
         strcat(fmt_branch, "%f|");
@@ -45,6 +44,8 @@ void git_details(git_repository *repo, char *fmt_branch) {
 
     git_status_list_new(&status, repo, NULL);
     size_t i, maxi = git_status_list_entrycount(status);
+    printf("Length for status: %li\n", maxi);
+
     if (maxi != 0) {
         strcat(fmt_branch, "%F{red}"); 
     } else {
@@ -205,7 +206,7 @@ int main() {
         if (error == 0) {
             char fmt_branch = '\0';
             git_repository * repo = NULL;
-            int er = git_repository_open(&repo, root.ptr);
+            git_repository_open(&repo, root.ptr);
             //int g = git_branch();
             git_details(repo, &fmt_branch);
             if(fmt_branch) strcat(prompt, &fmt_branch);
