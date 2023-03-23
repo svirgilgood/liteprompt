@@ -18,6 +18,21 @@
 #include <libgen.h>
 #include <git2.h>
 
+// This struct is included in the example parts of the libgit2 
+// it is intended to also parse command line options, but I don't 
+// need those for this. However, I couldn't make the function call work 
+// directly from the git_status_options struct.
+struct status_opts {
+    git_status_options statusopt;
+    char *repodir;
+    char *pathspec[PATH_MAX];
+    int npaths;
+    int format;
+    int zterm;
+    int showbranch;
+    int showsubmod;
+    int repeat;
+};
 
 /**
  * Update the fmt_branch to include the branch name 
@@ -31,6 +46,7 @@ void store_branch(git_reference *head, char *fmt_branch) {
     }
 }
 
+
 /**
  * update the fmt_branch name to include the branch name and 
  * if it should be colored red or green
@@ -41,10 +57,13 @@ void git_details(git_repository *repo, char *fmt_branch) {
     error = git_repository_head(&head, repo);
 
     git_status_list *status;
+    // Make sure the status options are showing the default init values
+    struct status_opts o = { GIT_STATUS_OPTIONS_INIT, "." };
+    o.statusopt.show  = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
 
-    git_status_list_new(&status, repo, NULL);
+    git_status_list_new(&status, repo, &o.statusopt);
     size_t i, maxi = git_status_list_entrycount(status);
-    printf("Length for status: %li\n", maxi);
+    //printf("value of i: %li\n", i);
 
     if (maxi != 0) {
         strcat(fmt_branch, "%F{red}"); 
