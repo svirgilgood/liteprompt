@@ -60,7 +60,10 @@ void git_details(git_repository *repo, char *fmt_branch) {
     // Make sure the status options are showing the default init values
     struct status_opts o = { GIT_STATUS_OPTIONS_INIT, "." };
     o.statusopt.show  = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
-
+    o.statusopt.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
+         GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX |
+         GIT_STATUS_OPT_SORT_CASE_SENSITIVELY;
+ 
     git_status_list_new(&status, repo, &o.statusopt);
     size_t i, maxi = git_status_list_entrycount(status);
     //printf("value of i: %li\n", i);
