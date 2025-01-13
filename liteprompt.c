@@ -171,7 +171,7 @@ int machine_name_prompt(char *host, int max_length, char * color) {
 int get_updates() {
     FILE *fp;
     char *home = getenv("HOME");
-    char filepath[PATH_MAX];
+    char filepath[PATH_MAX] = {0};
     strcat(filepath, home);
     strcat(filepath, "/.updates");
     fp=fopen(filepath, "r");
