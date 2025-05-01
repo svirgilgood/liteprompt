@@ -44,7 +44,7 @@ create an executable in the directory ~/bin called prompt.
 
 For ubuntu systems, `apt list --upgradable` adds the line `Listing...` to the output
 of the command, so to remove this line from the count, add the following variable
-to the compilation `gcc -o $HOME/bin/prompt -DUPDATEOFFSET=1 -lgit2 liteprompt.c`.
+to the compilation `gcc -o $HOME/bin/prompt liteprompt.c -DUPDATEOFFSET=1 -lgit2`.
 
 ### Adding the File the .zshrc 
 
