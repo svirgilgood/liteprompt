@@ -42,6 +42,10 @@ distros with `# apt install libgit2-1.1`.
 To build the program, run `gcc -o $HOME/bin/prompt liteprompt.c -lgit2`. This will
 create an executable in the directory ~/bin called prompt. 
 
+For ubuntu systems, `apt list --upgradable` adds the line `Listing...` to the output
+of the command, so to remove this line from the count, add the following variable
+to the compilation `gcc -o $HOME/bin/prompt -DUPDATEOFFSET=1 -lgit2 liteprompt.c`.
+
 ### Adding the File the .zshrc 
 
 To your zshrc, add:

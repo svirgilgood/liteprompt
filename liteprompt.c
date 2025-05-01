@@ -110,9 +110,9 @@ int find_home(char * short_path) {
 
 
 /**
- * create a short path of the current working directory. 
+ * create a short path of the current working directory.
  * This path will have the home as a tilde, and then will display only 
- * the first letter of base directories. The end of the dirctories will 
+ * the first letter of base directories. The end of the directories will 
  * be the full name
  */
 int shorten_path(char * short_path, char *cwd) {
@@ -160,7 +160,7 @@ int machine_name_prompt(char *host, int max_length, char * color) {
     if (strlen(host) > max_length) return 0;
     char hostname[HOST_NAME_MAX];
     gethostname(hostname, HOST_NAME_MAX);
-    int i = sprintf(host, "%%F{%s}%s%%f", color, hostname);
+    int i = sprintf(host, "%%F{%s}%s%%f|", color, hostname);
     return i;
 }
 
@@ -184,21 +184,45 @@ int get_updates() {
     while (EOF != (fscanf(fp, "%*[^\n]"), fscanf(fp,"%*c")))
           ++lines;
 
-    // for arch linux this needs to change
-    return lines -1;
+    // for arch linux the offset is 0
+    // But for ubuntu, this will need to be 1
+    #ifndef UPDATEOFFSET
+    #define UPDATEOFFSET 0
+    #endif
+    // return lines -1;
+    return lines - UPDATEOFFSET;
+}
+
+int get_news() {
+  FILE *fp;
+  char *home = getenv("HOME");
+  char filepath[PATH_MAX] = {0};
+  strcat(filepath, home);
+  strcat(filepath, "/.config/archnews.txt");
+  fp=fopen(filepath, "r");
+  long int lines = 0;
+
+  if (fp == NULL) {
+    return 0;
+  }
+
+  while (EOF != (fscanf(fp, "%*[^\n]"), fscanf(fp, "%%*c")))
+    ++lines;
+
+  return lines > 0;
 }
 
 int main() {
     git_libgit2_init();
     git_buf root = {0};
-    char cwd[PATH_MAX];
-    char prompt[PATH_MAX];
+    char cwd[PATH_MAX] = {0};
+    char prompt[PATH_MAX] = {0};
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         // Root
         char * user = getenv("USER");
         if(strcmp(user, "root") == 0) {
-            char short_path[PATH_MAX];
-            char host[HOST_NAME_MAX+20];
+            char short_path[PATH_MAX] = {0};
+            char host[HOST_NAME_MAX+20] = {0};
             machine_name_prompt(host, HOST_NAME_MAX, "yellow");
             int s = shorten_path(short_path, cwd);
             short_path[strlen(short_path)-1] = '#';
@@ -207,12 +231,22 @@ int main() {
         }
         // updates
         int updates = get_updates();
-        char updatestr[PATH_MAX];
-        sprintf(updatestr, "%%F{yellow}%i%%f|", updates);
+        char updatestr[PATH_MAX] = {0};
+
+        int news = get_news();
+        char news_color[7] = {0};
+        if (news == 0) {
+          strcat(news_color, "yellow");
+        }
+        else {
+          strcat(news_color,  "red");
+        }
+
+        sprintf(updatestr, "%%F{%s}%i%%f|", news_color, updates);
         if (updates > 0) strcat(prompt, updatestr);
         // ssh hostname
         if (getenv("SSH_TTY") != NULL) {
-            char host[HOST_NAME_MAX+13];
+            char host[HOST_NAME_MAX+13] = {0};
             machine_name_prompt(host, HOST_NAME_MAX, "green");
             strcat(prompt, host); 
         }
@@ -234,7 +268,7 @@ int main() {
             if(fmt_branch) strcat(prompt, &fmt_branch);
         } 
         // path
-        char short_path[PATH_MAX];
+        char short_path[PATH_MAX] = {0};
         int s = shorten_path(short_path, cwd);
         strcat(prompt, "%F{blue}");
         strcat(prompt, short_path);
